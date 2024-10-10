@@ -1,10 +1,10 @@
 SHELL := /bin/bash
 
 build:
-	@go build -o bin/storgo ./cmd/storgo
+	@go build -o bin/ccwc main.go
 
 run: build
-	@./bin/storgo
+	@./bin/ccwc
 
 test:
 	@go test -v ./... 
