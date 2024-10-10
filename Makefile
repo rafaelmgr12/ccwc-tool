@@ -1,5 +1,7 @@
 SHELL := /bin/bash
 
+.PHONY: build run test
+
 build:
 	@go build -o bin/ccwc main.go
 
