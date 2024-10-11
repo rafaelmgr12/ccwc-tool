@@ -6,7 +6,8 @@ import (
 	"strings"
 )
 
-// countWords reads the file line by line and counts the words in the file
+// The countWords function reads a file, splits its content into words, and returns the total word
+// count along with any errors encountered.
 func countWords(filename string) (int, error) {
 	file, err := os.Open(filename)
 	if err != nil {
@@ -34,4 +35,3 @@ func countWords(filename string) (int, error) {
 
 	return wordCount, nil
 }
-

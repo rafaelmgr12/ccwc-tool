@@ -5,7 +5,8 @@ import (
 	"os"
 )
 
-// countBytes reads the file in chunks using a buffered reader and counts the number of bytes
+// The countBytes function reads a file and returns the total number of bytes in the file along with
+// any errors encountered.
 func countBytes(filename string) (int, error) {
 	file, err := os.Open(filename)
 	if err != nil {

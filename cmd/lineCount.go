@@ -5,7 +5,8 @@ import (
 	"os"
 )
 
-// countLines reads the file in chunks and counts the number of newline characters
+// The `countLines` function reads a file line by line and returns the total number of lines in the
+// file along with any encountered errors.
 func countLines(filename string) (int, error) {
 	file, err := os.Open(filename)
 	if err != nil {

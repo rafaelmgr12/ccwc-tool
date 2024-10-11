@@ -73,7 +73,8 @@ Usage:
 	},
 }
 
-// Execute the root command and add flags
+// The `Execute` function sets up flags for byte, line, and word counting and then executes the root
+// command.
 func Execute() {
 	// Add the flags for byte and line counting
 	rootCmd.Flags().BoolVarP(&countBytesFlag, "bytes", "c", false, "Count bytes in the file")
