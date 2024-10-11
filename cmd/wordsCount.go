@@ -2,28 +2,17 @@ package cmd
 
 import (
 	"bufio"
-	"os"
+	"io"
 	"strings"
 )
 
-// The countWords function reads a file, splits its content into words, and returns the total word
-// count along with any errors encountered.
-func countWords(filename string) (int, error) {
-	file, err := os.Open(filename)
-	if err != nil {
-		return 0, err
-	}
-	defer file.Close()
-
+// countWords reads from an io.Reader and returns the total word count along with any errors encountered.
+func countWords(r io.Reader) (int, error) {
+	scanner := bufio.NewScanner(r)
 	wordCount := 0
-	scanner := bufio.NewScanner(file)
 
-	// Scan the file line by line
 	for scanner.Scan() {
 		line := scanner.Text()
-
-		// Use strings.Fields to split the line into words
-		// strings.Fields splits by any whitespace and returns a slice of words
 		words := strings.Fields(line)
 		wordCount += len(words)
 	}

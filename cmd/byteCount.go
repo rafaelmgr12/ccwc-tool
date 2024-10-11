@@ -2,20 +2,14 @@ package cmd
 
 import (
 	"bufio"
-	"os"
+	"io"
 )
 
 // The countBytes function reads a file and returns the total number of bytes in the file along with
 // any errors encountered.
-func countBytes(filename string) (int, error) {
-	file, err := os.Open(filename)
-	if err != nil {
-		return 0, err
-	}
-	defer file.Close()
+func countBytes(r io.Reader) (int, error) {
 
-	reader := bufio.NewReader(file)
-
+	reader := bufio.NewReader(r)
 	byteCount := 0
 	buffer := make([]byte, 4096)
 

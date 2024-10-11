@@ -27,62 +27,83 @@ Usage:
   ccwc -m [file]   count the characters in the file
   ccwc [file]      count bytes, lines, and words (default behavior)`,
 	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) == 0 {
-			fmt.Println("Error: You must provide a filename.")
-			cmd.Help() // Show help if no arguments are provided
-			return
+		if len(args) == 0 && !countBytesFlag && !countLineFlag && !countWordsFlag && !countCharsFlag {
+			cmd.Usage()
+			os.Exit(1)
+		}
+		var reader *os.File
+		var err error
+
+		if len(args) > 0 {
+			reader, err = os.Open(args[0])
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+			defer reader.Close()
+		} else {
+			reader = os.Stdin
 		}
 
-		for _, filename := range args {
-			// If no flags are set, default to count bytes, lines, and words
-			if !countBytesFlag && !countLineFlag && !countWordsFlag && !countCharsFlag {
-				countBytesFlag = true
-				countLineFlag = true
-				countWordsFlag = true
+		if countBytesFlag {
+			byteCount, err := countBytes(reader)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+			fmt.Printf("%d\n", byteCount)
+		}
+
+		if countLineFlag {
+			lineCount, err := countLines(reader)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+			fmt.Printf("%d\n", lineCount)
+		}
+
+		if countWordsFlag {
+			wordCount, err := countWords(reader)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+			fmt.Printf("%d\n", wordCount)
+		}
+
+		if countCharsFlag {
+			charCount, err := countChars(reader)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+			fmt.Printf("%d\n", charCount)
+		}
+
+		// Default behavior if no flags are provided
+		if !countBytesFlag && !countLineFlag && !countWordsFlag && !countCharsFlag {
+			lineCount, err := countLines(reader)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
 			}
 
-			// Handle byte counting
-			if countBytesFlag {
-				byteCount, err := countBytes(filename)
-				if err != nil {
-					fmt.Printf("Error reading file %s: %v\n", filename, err)
-					continue
-				}
-				fmt.Printf("%8d ", byteCount)
+			wordCount, err := countWords(reader)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
 			}
 
-			// Handle line counting
-			if countLineFlag {
-				lineCount, err := countLines(filename)
-				if err != nil {
-					fmt.Printf("Error reading file %s: %v\n", filename, err)
-					continue
-				}
-				fmt.Printf("%8d ", lineCount)
+			// Need to reset reader to count bytes after reading lines and words
+			reader.Seek(0, os.SEEK_SET)
+			byteCount, err := countBytes(reader)
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
 			}
 
-			// Handle word counting
-			if countWordsFlag {
-				wordCount, err := countWords(filename)
-				if err != nil {
-					fmt.Printf("Error reading file %s: %v\n", filename, err)
-					continue
-				}
-				fmt.Printf("%8d ", wordCount)
-			}
-
-			// Handle character counting
-			if countCharsFlag {
-				charCount, err := countChars(filename)
-				if err != nil {
-					fmt.Printf("Error reading file %s: %v\n", filename, err)
-					continue
-				}
-				fmt.Printf("%8d ", charCount)
-			}
-
-			// Print the filename at the end of the output
-			fmt.Printf("%s\n", filename)
+			fmt.Printf("%d %d %d\n", lineCount, wordCount, byteCount)
 		}
 	},
 }

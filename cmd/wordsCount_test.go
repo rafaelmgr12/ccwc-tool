@@ -1,12 +1,21 @@
 package cmd
 
-import "testing"
+import (
+	"os"
+	"testing"
+)
 
 func TestCountWords(t *testing.T) {
 	filename := "../test/test.txt"
 	expectedWordsCount := 58164
 
-	wordsCount, err := countWords(filename)
+	file, err := os.Open(filename)
+	if err != nil {
+		t.Fatalf("Error opening file %v", err)
+	}
+	defer file.Close()
+
+	wordsCount, err := countWords(file)
 	if err != nil {
 		t.Fatalf("Error counting words: %v", err)
 	}
