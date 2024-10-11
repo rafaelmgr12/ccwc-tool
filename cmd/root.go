@@ -11,6 +11,7 @@ var (
 	countBytesFlag bool
 	countLineFlag  bool
 	countWordsFlag bool
+	countCharsFlag bool
 )
 
 // Root command setup
@@ -22,7 +23,8 @@ var rootCmd = &cobra.Command{
 Usage:
   ccwc -c [file]   count the number of bytes in the file
   ccwc -l [file]   count the lines in the file
-  ccwc -w [file]   count the words in the file`,
+  ccwc -w [file]   count the words in the file
+  ccwc -m [file]   count the characters in the file`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
 			fmt.Println("Error: You must provide a filename.")
@@ -66,8 +68,20 @@ Usage:
 			}
 		}
 
+		// Handle char couting
+		if countCharsFlag {
+			for _, filename := range args {
+				charCount, err := countChars(filename)
+				if err != nil {
+					fmt.Printf("Error reading file %s: %v\n", filename, err)
+					continue
+				}
+				fmt.Printf("%d %s\n", charCount, filename)
+			}
+		}
+
 		// If no flags are set, show help
-		if !countBytesFlag && !countLineFlag && !countWordsFlag {
+		if !countBytesFlag && !countLineFlag && !countWordsFlag && !countCharsFlag {
 			cmd.Help()
 		}
 	},
@@ -80,6 +94,7 @@ func Execute() {
 	rootCmd.Flags().BoolVarP(&countBytesFlag, "bytes", "c", false, "Count bytes in the file")
 	rootCmd.Flags().BoolVarP(&countLineFlag, "lines", "l", false, "Count lines in the file")
 	rootCmd.Flags().BoolVarP(&countWordsFlag, "words", "w", false, "Count words in the file")
+	rootCmd.Flags().BoolVarP(&countCharsFlag, "chars", "m", false, "Count chars in the file")
 
 	// Execute the root command
 	if err := rootCmd.Execute(); err != nil {
