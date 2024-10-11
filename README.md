@@ -17,8 +17,8 @@ Welcome to the `ccwc` tool! This project is a Go implementation of the classic U
 1. Clone the repository:
 
     ```bash
-    git clone https://github.com/yourusername/ccwc.git
-    cd ccwc
+    git clone https://github.com/rafaelmgr12/cwcc-tool.git
+    cd ccwc-tool
     ```
 
 2. Build the tool using Go:
@@ -75,7 +75,7 @@ Here’s how you can use `ccwc` with a sample text file:
 
 1. **File `test.txt`:**
 
-    ```
+    ```text
     Go is an open-source programming language that makes it easy to build simple, reliable, and efficient software.
     ```
 
