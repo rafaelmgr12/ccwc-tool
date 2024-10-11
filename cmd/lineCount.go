@@ -16,7 +16,6 @@ func countLines(filename string) (int, error) {
 
 	// Create a buffered reader to read the file in chunks
 	reader := bufio.NewReader(file)
-
 	lineCount := 0
 
 	// Read the file line by line
