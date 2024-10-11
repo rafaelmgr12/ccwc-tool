@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/rafaelmgr12/cwcc-tool/internal/count"
 	"github.com/spf13/cobra"
 )
 
@@ -27,10 +28,12 @@ Usage:
   ccwc -m [file]   count the characters in the file
   ccwc [file]      count bytes, lines, and words (default behavior)`,
 	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) == 0 && !countBytesFlag && !countLineFlag && !countWordsFlag && !countCharsFlag {
+		if len(args) <= 0 || (!countBytesFlag && !countLineFlag && !countWordsFlag && !countCharsFlag) {
+			fmt.Println("error need a file to read")
 			cmd.Usage()
 			os.Exit(1)
 		}
+
 		var reader *os.File
 		var err error
 
@@ -46,7 +49,7 @@ Usage:
 		}
 
 		if countBytesFlag {
-			byteCount, err := countBytes(reader)
+			byteCount, err := count.CountBytes(reader)
 			if err != nil {
 				fmt.Println(err)
 				os.Exit(1)
@@ -55,7 +58,7 @@ Usage:
 		}
 
 		if countLineFlag {
-			lineCount, err := countLines(reader)
+			lineCount, err := count.CountLines(reader)
 			if err != nil {
 				fmt.Println(err)
 				os.Exit(1)
@@ -64,7 +67,7 @@ Usage:
 		}
 
 		if countWordsFlag {
-			wordCount, err := countWords(reader)
+			wordCount, err := count.CountWords(reader)
 			if err != nil {
 				fmt.Println(err)
 				os.Exit(1)
@@ -73,7 +76,7 @@ Usage:
 		}
 
 		if countCharsFlag {
-			charCount, err := countChars(reader)
+			charCount, err := count.CountChars(reader)
 			if err != nil {
 				fmt.Println(err)
 				os.Exit(1)
@@ -83,13 +86,13 @@ Usage:
 
 		// Default behavior if no flags are provided
 		if !countBytesFlag && !countLineFlag && !countWordsFlag && !countCharsFlag {
-			lineCount, err := countLines(reader)
+			lineCount, err := count.CountLines(reader)
 			if err != nil {
 				fmt.Println(err)
 				os.Exit(1)
 			}
 
-			wordCount, err := countWords(reader)
+			wordCount, err := count.CountWords(reader)
 			if err != nil {
 				fmt.Println(err)
 				os.Exit(1)
@@ -97,7 +100,7 @@ Usage:
 
 			// Need to reset reader to count bytes after reading lines and words
 			reader.Seek(0, os.SEEK_SET)
-			byteCount, err := countBytes(reader)
+			byteCount, err := count.CountBytes(reader)
 			if err != nil {
 				fmt.Println(err)
 				os.Exit(1)
