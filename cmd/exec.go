@@ -5,36 +5,34 @@ import (
 	"os"
 
 	"github.com/rafaelmgr12/cwcc-tool/internal/count"
-	"github.com/spf13/cobra"
 )
 
 // The `execCommand` function in Go reads input from a file or stdin, checks for flags, and executes
 // count functions based on the provided flags.
-func execCommand(cmd *cobra.Command, args []string) {
+func execCommand(args []string) error {
 	info, err := os.Stdin.Stat()
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		return fmt.Errorf("failed to stat stdin: %w", err)
 	}
 
 	isTerminal := (info.Mode() & os.ModeCharDevice) != 0
 
 	// No args, no flags, and stdin is a terminal, show usage and exit
 	if shouldShowMessageUsage(args, isTerminal) {
-		fmt.Println("error: need a file to read or input from stdin")
-		cmd.Usage()
-		os.Exit(1)
+		return fmt.Errorf("error: need a file to read or input from stdin")
 	}
 
 	reader, fileName, err := getReaderAndFileName(args, isTerminal)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		return fmt.Errorf("failed to get reader and file name: %w", err)
 	}
 	defer reader.Close()
 
 	// Pass the file name to the function that performs the counts
-	executeCountFlags(reader, fileName)
+	if err := executeCountFlags(reader, fileName); err != nil {
+		return fmt.Errorf("failed to execute count flags: %w", err)
+	}
+	return nil
 }
 
 func getReaderAndFileName(args []string, isTerminal bool) (*os.File, string, error) {
@@ -59,12 +57,11 @@ func shouldShowMessageUsage(args []string, isTerminal bool) bool {
 }
 
 // executeCountFlags processes the flags and executes the appropriate count functions
-func executeCountFlags(reader *os.File, fileName string) {
+func executeCountFlags(reader *os.File, fileName string) error {
 	if countBytesFlag {
 		byteCount, err := count.CountBytes(reader)
 		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+			return fmt.Errorf("failed to count bytes: %w", err)
 		}
 		fmt.Printf("%d %s\n", byteCount, fileName)
 	}
@@ -72,8 +69,7 @@ func executeCountFlags(reader *os.File, fileName string) {
 	if countLineFlag {
 		lineCount, err := count.CountLines(reader)
 		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+			return fmt.Errorf("failed to count lines: %w", err)
 		}
 		fmt.Printf("%d %s\n", lineCount, fileName)
 	}
@@ -81,8 +77,7 @@ func executeCountFlags(reader *os.File, fileName string) {
 	if countWordsFlag {
 		wordCount, err := count.CountWords(reader)
 		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+			return fmt.Errorf("failed to count words: %w", err)
 		}
 		fmt.Printf("%d %s\n", wordCount, fileName)
 	}
@@ -90,8 +85,7 @@ func executeCountFlags(reader *os.File, fileName string) {
 	if countCharsFlag {
 		charCount, err := count.CountChars(reader)
 		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+			return fmt.Errorf("failed to count chars: %w", err)
 		}
 		fmt.Printf("%d %s\n", charCount, fileName)
 	}
@@ -101,22 +95,21 @@ func executeCountFlags(reader *os.File, fileName string) {
 		reader.Seek(0, os.SEEK_SET)
 		lineCount, err := count.CountLines(reader)
 		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+			return fmt.Errorf("failed to count lines: %w", err)
 		}
 
 		reader.Seek(0, os.SEEK_SET)
 		wordCount, err := count.CountWords(reader)
 		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+			return fmt.Errorf("failed to count words: %w", err)
 		}
 		reader.Seek(0, os.SEEK_SET)
 		byteCount, err := count.CountBytes(reader)
 		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+			return fmt.Errorf("failed to count bytes: %w", err)
 		}
 		fmt.Printf("%d %d %d %s\n", lineCount, wordCount, byteCount, fileName)
 	}
+
+	return nil
 }

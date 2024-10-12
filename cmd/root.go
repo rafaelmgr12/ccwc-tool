@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -27,7 +28,12 @@ Usage:
   ccwc -m [file]   count the characters in the file
   ccwc [file]      count bytes, lines, and words (default behavior)`,
 	Run: func(cmd *cobra.Command, args []string) {
-		execCommand(cmd, args)
+		if err := execCommand(args); err != nil {
+			fmt.Println("An error occurred:", err.Error()) // User-friendly error message
+			cmd.Usage()                                    // Optional: show usage for incorrect use
+			log.Fatalf("Command execution failed: %v", err)
+		}
+
 	},
 }
 
