@@ -20,36 +20,42 @@ func execCommand(cmd *cobra.Command, args []string) {
 	isTerminal := (info.Mode() & os.ModeCharDevice) != 0
 
 	// No args, no flags, and stdin is a terminal, show usage and exit
-	if len(args) <= 0 && !countBytesFlag && !countLineFlag && !countWordsFlag && !countCharsFlag && isTerminal {
+	if shouldShowMessageUsage(args, isTerminal) {
 		fmt.Println("error: need a file to read or input from stdin")
 		cmd.Usage()
 		os.Exit(1)
 	}
 
-	var reader *os.File
-	var fileName string
-
-	if len(args) > 0 {
-		reader, err = os.Open(args[0])
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-		defer reader.Close()
-		fileName = reader.Name() // Get the file name from the file object
-	} else {
-		reader = os.Stdin
-		// If it's stdin, set the name as "stdin"
-		fileName = ""
-		// If stdin is a terminal and flags are present, do not block
-		if isTerminal {
-			fmt.Println("error: reading from stdin is not supported in terminal mode without file")
-			os.Exit(1)
-		}
+	reader, fileName, err := getReaderAndFileName(args, isTerminal)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
+	defer reader.Close()
 
 	// Pass the file name to the function that performs the counts
 	executeCountFlags(reader, fileName)
+}
+
+func getReaderAndFileName(args []string, isTerminal bool) (*os.File, string, error) {
+	if len(args) > 0 {
+		file, err := os.Open(args[0])
+		if err != nil {
+			return nil, "", err
+		}
+		return file, file.Name(), nil
+	}
+
+	if isTerminal {
+		return nil, "", fmt.Errorf("error: reading from stdin is not supported in terminal mode without file")
+	}
+
+	return os.Stdin, "", nil
+
+}
+
+func shouldShowMessageUsage(args []string, isTerminal bool) bool {
+	return len(args) <= 0 && !countBytesFlag && !countLineFlag && !countWordsFlag && !countCharsFlag && isTerminal
 }
 
 // executeCountFlags processes the flags and executes the appropriate count functions
