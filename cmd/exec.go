@@ -8,8 +8,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// The `execCommand` function in Go reads input from a file or stdin, checks for flags, and executes
+// count functions based on the provided flags.
 func execCommand(cmd *cobra.Command, args []string) {
-	// Check if stdin is a terminal
 	info, err := os.Stdin.Stat()
 	if err != nil {
 		fmt.Println(err)
@@ -26,6 +27,7 @@ func execCommand(cmd *cobra.Command, args []string) {
 	}
 
 	var reader *os.File
+	var fileName string
 
 	if len(args) > 0 {
 		reader, err = os.Open(args[0])
@@ -34,8 +36,11 @@ func execCommand(cmd *cobra.Command, args []string) {
 			os.Exit(1)
 		}
 		defer reader.Close()
+		fileName = reader.Name() // Captura o nome do arquivo
 	} else {
 		reader = os.Stdin
+		// Se for stdin, defina o nome como "stdin"
+		fileName = ""
 		// If stdin is a terminal and flags are present, do not block
 		if isTerminal {
 			fmt.Println("error: reading from stdin is not supported in terminal mode without file")
@@ -43,13 +48,19 @@ func execCommand(cmd *cobra.Command, args []string) {
 		}
 	}
 
+	// Passa o nome do arquivo para a função que executa as contagens
+	executeCountFlags(reader, fileName)
+}
+
+// executeCountFlags processes the flags and executes the appropriate count functions
+func executeCountFlags(reader *os.File, fileName string) {
 	if countBytesFlag {
 		byteCount, err := count.CountBytes(reader)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		fmt.Printf("%d\n", byteCount)
+		fmt.Printf("%d %s\n", byteCount, fileName)
 	}
 
 	if countLineFlag {
@@ -58,7 +69,7 @@ func execCommand(cmd *cobra.Command, args []string) {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		fmt.Printf("%d\n", lineCount)
+		fmt.Printf("%d %s\n", lineCount, fileName)
 	}
 
 	if countWordsFlag {
@@ -67,7 +78,7 @@ func execCommand(cmd *cobra.Command, args []string) {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		fmt.Printf("%d\n", wordCount)
+		fmt.Printf("%d %s\n", wordCount, fileName)
 	}
 
 	if countCharsFlag {
@@ -76,31 +87,30 @@ func execCommand(cmd *cobra.Command, args []string) {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		fmt.Printf("%d\n", charCount)
+		fmt.Printf("%d %s\n", charCount, fileName)
 	}
 
 	// Default behavior if no flags are provided
 	if !countBytesFlag && !countLineFlag && !countWordsFlag && !countCharsFlag {
+		reader.Seek(0, os.SEEK_SET)
 		lineCount, err := count.CountLines(reader)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
 
+		reader.Seek(0, os.SEEK_SET)
 		wordCount, err := count.CountWords(reader)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-
-		// Need to reset reader to count bytes after reading lines and words
 		reader.Seek(0, os.SEEK_SET)
 		byteCount, err := count.CountBytes(reader)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-
-		fmt.Printf("%d %d %d\n", lineCount, wordCount, byteCount)
+		fmt.Printf("%d %d %d %s\n", lineCount, wordCount, byteCount, fileName)
 	}
 }
