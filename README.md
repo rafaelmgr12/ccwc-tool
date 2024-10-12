@@ -3,6 +3,24 @@
 
 Welcome to the `ccwc` tool! This project is a Go implementation of the classic Unix `wc` (word count) command-line tool, designed to work on Windows, macOS, and Linux. Like its sibling `wc`, `ccwc` is used to count bytes, characters, words, and lines in files or from standard input.
 
+The `ccwc-tool` was developed as a modern, cross-platform alternative with several key motivations driving its design:
+
+- **Cross-platform Compatibility**:
+
+    Designed to work seamlessly on Windows, macOS, and Linux. Go's portability ensures the tool runs efficiently on any platform without dependency issues, making it ideal for developers and system administrators who work across diverse environments.
+
+- **Lightweight and Efficient**:
+
+    Written in Go, `ccwc-tool` takes advantage of Go’s lightweight, statically compiled binaries and high performance. It operates quickly with minimal system overhead, making it suitable for high-performance environments where resource efficiency is crucial.
+
+- **Enhanced Usability**:
+
+    While maintaining the core functionalities of `wc`, `ccwc-tool` introduces additional input methods (like reading from standard input) and provides more intuitive flag handling, offering a simple yet powerful utility for analyzing text files on various operating systems.
+
+- **Extendibility**:
+
+    Its simple and modular design makes `ccwc-tool` easy to extend and contribute to. Developers can add new features or improve performance, ensuring the tool evolves with the community's needs.
+
 ## Features
 
 - **Count Bytes (-c)**: Use the `c` flag to get the total number of bytes in a file.
