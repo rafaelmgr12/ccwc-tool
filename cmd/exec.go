@@ -36,10 +36,10 @@ func execCommand(cmd *cobra.Command, args []string) {
 			os.Exit(1)
 		}
 		defer reader.Close()
-		fileName = reader.Name() // Captura o nome do arquivo
+		fileName = reader.Name() // Get the file name from the file object
 	} else {
 		reader = os.Stdin
-		// Se for stdin, defina o nome como "stdin"
+		// If it's stdin, set the name as "stdin"
 		fileName = ""
 		// If stdin is a terminal and flags are present, do not block
 		if isTerminal {
@@ -48,7 +48,7 @@ func execCommand(cmd *cobra.Command, args []string) {
 		}
 	}
 
-	// Passa o nome do arquivo para a função que executa as contagens
+	// Pass the file name to the function that performs the counts
 	executeCountFlags(reader, fileName)
 }
 
