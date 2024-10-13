@@ -208,3 +208,30 @@ func TestRootCommand_WordsFlag(t *testing.T) {
 	assert.Contains(t, output, tmpFile.Name(), "Output should contain the temporary file name")
 	assert.Contains(t, output, "9", "Output should contain word count (9 words for this file)")
 }
+
+// Test case for chars flag
+func TestRootCommand_CharsFlag(t *testing.T) {
+	// Create a temporary file with sample content
+	tmpFile := createTempFile(t, "This is a sample text file with several words.")
+	defer os.Remove(tmpFile.Name()) // Ensure the file is deleted after the test
+
+	// Set the flag for counting characters
+	countBytesFlag = false
+	countLineFlag = false
+	countWordsFlag = false
+	countCharsFlag = true
+
+	args := []string{tmpFile.Name()}
+	rootCmd.SetArgs(args)
+
+	// Capture the output of the command execution
+	output := captureAllOutput(func() {
+		err := rootCmd.Execute()
+		assert.NoError(t, err)
+	})
+
+	// Check that the output contains the expected information
+	assert.Contains(t, output, tmpFile.Name(), "Output should contain the temporary file name")
+	assert.Contains(t, output, "46", "Output should contain character count (46 characters for this file)")
+
+}
