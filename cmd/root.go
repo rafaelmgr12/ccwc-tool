@@ -27,24 +27,25 @@ Usage:
   ccwc -w [file]   count the words in the file
   ccwc -m [file]   count the characters in the file
   ccwc [file]      count bytes, lines, and words (default behavior)`,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
+		// Use RunE to return errors instead of log.Fatalf
 		if err := execCommand(args); err != nil {
-			fmt.Println("An error occurred:", err.Error()) // User-friendly error message
-			cmd.Usage()                                    // Optional: show usage for incorrect use
-			log.Fatalf("Command execution failed: %v", err)
+			log.Printf("Command execution failed: %v", err)
+			return err // Return the error instead of calling log.Fatalf
 		}
-
+		return nil
 	},
 }
 
 // The `Execute` function sets up flags for byte, line, and word counting and then executes the root
 // command.
 func Execute() {
-	// Define the flags in a separeted function
+	// Define the flags in a separated function
 	defineFlags()
-	// Execute the root command
+
+	// Execute the root command and handle the error gracefully
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
+		fmt.Println("Command execution failed:", err)
 		os.Exit(1)
 	}
 }
